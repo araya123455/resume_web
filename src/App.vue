@@ -281,11 +281,12 @@ function scrollToElement(element) {
 </script> -->
 
 <script setup>
-import router  from './router';
+import router from './router';
 import { RouterView, RouterLink } from 'vue-router';
 const menuList = [
   { path: "/", name: "home" },
-  { path: "/create", name: "Create" }
+  { path: "/create", name: "Create" },
+  { path: "/chat", name: "Chat" }
 ]
 
 </script>
@@ -391,4 +392,5 @@ hr {
   .avatar {
     margin-right: 2rem;
   }
-}</style>
+}
+</style>
