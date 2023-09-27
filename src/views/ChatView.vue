@@ -7,7 +7,8 @@ import {
     ref as refDb,
     set,
     push,
-    onValue
+    onValue,
+    remove
 } from '../firebaseConfig'
 // import { watch } from 'fs';
 
@@ -47,22 +48,64 @@ const selectGroup = (key) => {
 //         "Belly": "Jerramaiar"
 //     });
 // });
+let groupChatName = ref("");
+const createGroup = () => {
+    if (groupChatName.value != '') {
+        push(refDb(database, `all_chat/${groupChatName.value}`), {
+            "user": studentId,
+            "message": '',
+            "dateTime": new Date().toISOString()
+        });
+        groupChatName.value = '';
+    }
+}
 
+const deleteGroup = (groupName) => {
+    if (window.confirm("Do you really want to delete?")) {
+        if (groupName) {
+            const groupRef = refDb(database, `all_chat/${groupName}`)
+            remove(groupRef)
+        }
+    }
+}
 </script>
 
 
 <template>
     <div class="flex">
-    <div class="overflow-y-scroll bg-white h-[90vh] w-[30%]">
-        <!-- show test 100 -->
-            <!-- <p v-for="i in 100" :key="i">test {{ i }}</p> -->
-            <!-- <div class="w-full bg-[#82A189] h-36 border-gray-700 border-4" v-for="i in 100" :key="i">
-                                    </div> -->
-            <div class="card card-side bg-base-100 shadow-xl w-full mb-4" style="cursor: pointer;"
-                v-for="(group, index) in histories" :key="index" data-theme="cupcake" @click="selectGroup(index)">
-                <div class="gap-1 card-body">
-                    <h2 class="card-title">{{ index }}</h2>
-                    <p>{{ group[Object.keys(group)[Object.keys(group).length - 1]].message }}</p>
+        <div class=" bg-white h-[90vh] w-[30%]">
+            <div class="w-full h-[10%]">
+                <button class="btn w-full h-full my-2 shadow-lg" data-theme="cupcake" onclick="my_modal_1.showModal()">Add
+                    Group</button>
+                <dialog id="my_modal_1" class="modal">
+                    <div class="modal-box">
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Group Name</span>
+                            </label>
+                            <input v-model="groupChatName" type="text" placeholder="Type Here"
+                                class="input input-bordered w-full" />
+                        </div>
+                        <div class="modal-action">
+                            <form method="dialog">
+                                <!-- if there is a button in form, it will close the modal -->
+                                <button @click="createGroup" class="btn mr-3">Save</button>
+                                <button class="btn">Close</button>
+                            </form>
+                        </div>
+                    </div>
+                </dialog>
+            </div>
+            <div class="overflow-y-scroll w-full h-[90%] pt-4">
+                <div class="card card-side bg-base-100 shadow-xl w-full mb-4" style="cursor: pointer;"
+                    v-for="(group, index) in histories" :key="index" data-theme="cupcake" @click="selectGroup(index)">
+                    <div class="gap-1 card-body">
+                        <h2 class="card-title">{{ index }}</h2>
+                        <p>{{ group[Object.keys(group)[Object.keys(group).length - 1]].message }}</p>
+                    </div>
+                    <div class="btn px-2 item-center flex justify-center">
+                        <button v-on:click="deleteGroup(index)">delete</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -71,17 +114,6 @@ const selectGroup = (key) => {
                 <!-- <p v-for="i in 100" :key="i">test {{ i }}</p> -->
 
                 <div class="">
-                    <!-- <div class="chat-image avatar">
-                                                        <div class="w-11 rounded-full">
-                                                            <img src="/cat1.jpg" />
-                                                        </div>
-                                                    </div> -->
-                    <!-- <div class="chat-header">
-                                                            Kabey
-                                                            <time class="text-xs opacity-50">12:45</time>
-                                                        </div> -->
-                    <!-- <div class="chat-bubble">
-                                                    </div> -->
                     <div v-for="(history, index) in histories[historykey]"
                         :class="`chat ${history.user == studentId ? 'chat-end' : 'chat-start'}`" :key="index">
                         <div class="chat-header">
@@ -91,23 +123,7 @@ const selectGroup = (key) => {
                         <div class="chat-bubble max-w-[45%] break-words">{{ history.message }} </div>
                     </div>
                     <div ref="bottomEl"></div>
-
                 </div>
-                <!-- <div class="chat chat-end ">
-                                                    <div class="chat-image avatar">
-                                                        <div class="w-11 rounded-full">
-                                                            <img src="/cat2.jpg" />
-                                                        </div>
-                                                    </div>
-                                                    <div class="chat-header">
-                                                        Muffin
-                                                        <time class="text-xs opacity-50">12:46</time>
-                                                    </div>
-                                                    <div class="chat-bubble"></div>
-                                                    <div class="chat-footer opacity-50">
-                                                        Seen at 12:46
-                                                    </div>
-                                                </div> -->
             </div>
 
             <div class="flex h-[6%] gap-1">
