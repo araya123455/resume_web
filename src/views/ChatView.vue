@@ -17,7 +17,7 @@ const db = refDb(database, 'all_chat/')
 let histories = ref([]);
 let historykey = ref("")
 const bottomEl = ref([])
-const studentId = "6314110018"
+const studentId = "6314110024"
 const onSend = () => {
     if (chat.value != '' && historykey.value != '') {
 
@@ -34,20 +34,14 @@ onValue(db, (snapshot) => {
     const data = snapshot.val();
     histories.value = data;
 })
-// watch(histories, (newHistories, oldHistories) => {
-//     bottomEl.value.scrollIntoView({ behavior: 'smooth' })
-// })
+
 onUpdated(() => {
     bottomEl.value.scrollIntoView({ behavior: 'smooth' })
 })
 const selectGroup = (key) => {
     historykey.value = key
 }
-// onMounted(() => {
-//     push(refDb(database, 'test'), {
-//         "Belly": "Jerramaiar"
-//     });
-// });
+
 let groupChatName = ref("");
 const createGroup = () => {
     if (groupChatName.value != '') {
@@ -88,7 +82,7 @@ const deleteGroup = (groupName) => {
                         </div>
                         <div class="modal-action">
                             <form method="dialog">
-                                <!-- if there is a button in form, it will close the modal -->
+
                                 <button @click="createGroup" class="btn mr-3">Save</button>
                                 <button class="btn">Close</button>
                             </form>
@@ -111,8 +105,8 @@ const deleteGroup = (groupName) => {
         </div>
         <div class="bg-gray-50 h-[90vh] w-[70%]">
             <div class="overflow-y-scroll h-[94%]">
-                <!-- <p v-for="i in 100" :key="i">test {{ i }}</p> -->
 
+                
                 <div class="">
                     <div v-for="(history, index) in histories[historykey]"
                         :class="`chat ${history.user == studentId ? 'chat-end' : 'chat-start'}`" :key="index">
@@ -128,7 +122,7 @@ const deleteGroup = (groupName) => {
 
             <div class="flex h-[6%] gap-1">
                 <input v-on:keyup.enter="onSend" v-model="chat" type="text" class="input input-bordered w-[80%] h-full"
-                    placeholder="Enter chat" />
+                    placeholder="Enter Chat" />
                 <button @click="onSend" class="w-[20%] btn h-full">send</button>
             </div>
         </div>
