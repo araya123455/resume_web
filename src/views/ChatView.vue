@@ -8,7 +8,9 @@ import {
     set,
     push,
     onValue,
-    remove
+    remove,
+    child,
+    get
 } from '../firebaseConfig'
 // import { watch } from 'fs';
 
@@ -31,7 +33,7 @@ const onSend = () => {
 }
 
 onValue(db, (snapshot) => {
-    const data = snapshot.val();
+    const data = snapshot.val() ?? [];
     histories.value = data;
 })
 // watch(histories, (newHistories, oldHistories) => {
@@ -50,14 +52,20 @@ const selectGroup = (key) => {
 // });
 let groupChatName = ref("");
 const createGroup = () => {
-    if (groupChatName.value != '') {
-        push(refDb(database, `all_chat/${groupChatName.value}`), {
-            "user": studentId,
-            "message": '',
-            "dateTime": new Date().toISOString()
-        });
+    get(child(db, `${groupChatName.value}`)).then((snapshot) => {
+        if (snapshot.exists()) {
+            alert("Cannot create chat because chat is exists.")
+        } else {
+            push(refDb(database, `all_chat/${groupChatName.value}`), {
+                "user": studentId,
+                "message": '',
+                "dateTime": new Date().toISOString()
+            });
+        }
         groupChatName.value = '';
-    }
+    }).catch((err) => {
+        console.error(err);
+    })
 }
 
 const deleteGroup = (groupName) => {
@@ -97,14 +105,19 @@ const deleteGroup = (groupName) => {
                 </dialog>
             </div>
             <div class="overflow-y-scroll w-full h-[90%] pt-4">
-                <div class="card card-side bg-base-100 shadow-xl w-full mb-4" style="cursor: pointer;"
+                <div class="card card-side bg-base-100 shadow-xl w-full mb-4 h-fit " style="cursor: pointer;"
                     v-for="(group, index) in histories" :key="index" data-theme="cupcake" @click="selectGroup(index)">
-                    <div class="gap-1 card-body">
-                        <h2 class="card-title">{{ index }}</h2>
-                        <p>{{ group[Object.keys(group)[Object.keys(group).length - 1]].message }}</p>
-                    </div>
-                    <div class="btn px-2 item-center flex justify-center">
-                        <button v-on:click="deleteGroup(index)">delete</button>
+                    <div class="gap-1 card-body flex">
+                        <div class="flex justify-between w-full">
+                            <div>
+                                <h2 class="card-title">{{ index }}</h2>
+                                <p class="text-sm">{{ group[Object.keys(group)[Object.keys(group).length - 1]]?.message }}
+                                </p>
+                            </div>
+                            <div class="btn px-2 h-full item-center flex justify-center w-20">
+                                <button v-on:click="deleteGroup(index)">delete</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -114,6 +127,7 @@ const deleteGroup = (groupName) => {
                 <!-- <p v-for="i in 100" :key="i">test {{ i }}</p> -->
 
                 <div class="">
+
                     <div v-for="(history, index) in histories[historykey]"
                         :class="`chat ${history.user == studentId ? 'chat-end' : 'chat-start'}`" :key="index">
                         <div class="chat-header">
@@ -126,7 +140,7 @@ const deleteGroup = (groupName) => {
                 </div>
             </div>
 
-            <div class="flex h-[6%] gap-1">
+            <div class="flex h-[6%] gap-1.5 px-1">
                 <input v-on:keyup.enter="onSend" v-model="chat" type="text" class="input input-bordered w-[80%] h-full"
                     placeholder="Enter chat" />
                 <button @click="onSend" class="w-[20%] btn h-full">send</button>
